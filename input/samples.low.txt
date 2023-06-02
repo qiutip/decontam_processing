@@ -1,0 +1,2 @@
+sample_No-Tube-2        /athena/masonlab/scratch/users/jaq4005/stuckonu/notebook/decontam_data/input/sample_No-Tube-2_1.fastq.gz     /athena/masonlab/scratch/users/jaq4005/stuckonu/notebook/decontam_data/input/sample_No-Tube-2_2.fastq.gz
+sample_Neg      /athena/masonlab/scratch/users/jaq4005/stuckonu/notebook/decontam_data/input/sample_Neg_1.fastq.gz   /athena/masonlab/scratch/users/jaq4005/stuckonu/notebook/decontam_data/input/sample_Neg_2.fastq.gz
