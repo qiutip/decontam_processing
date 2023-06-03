@@ -7,6 +7,10 @@ file_name="$1"
 read_id_file="$2"
 path_out="$3"
 
+#echo "file_name "$file_name
+#echo "read_id_file "$read_id_file
+#echo "path_out dir "$path_out
+
 sample_list=$(awk '{ print $1 }' $file_name)
 read1_list=$(awk '{ print $2 }' $file_name)
 read2_list=$(awk '{ print $3 }' $file_name)
@@ -33,6 +37,8 @@ for index in "${!samples[@]}"; do
     read2_val="${read2[$index]}"
     dir_1="$path_out/output/decontam/"$sample_val"_1.fastq.gz"
     dir_2="$path_out/output/decontam/"$sample_val"_2.fastq.gz"
+    
+    echo $dir_1
     
     echo "Filtering "$sample_val" Read 1"
     zcat $read1_val |  awk -v id=$read_id_file -v sample_id=$sample_val 'BEGIN {
