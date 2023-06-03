@@ -1,2 +1,0 @@
-sample_Pos      /athena/masonlab/scratch/users/jaq4005/stuckonu/bioforward/short-read-taxonomy/controls/short-read-taxonomy/2_kraken2/raw_kraken/sample_Pos/kraken.tsv
-sample_Neg      /athena/masonlab/scratch/users/jaq4005/stuckonu/bioforward/short-read-taxonomy/controls/short-read-taxonomy/2_kraken2/raw_kraken/sample_Neg/kraken.tsv
