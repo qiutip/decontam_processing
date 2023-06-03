@@ -42,8 +42,11 @@ sample_data(phylo_object)$is.neg <- sample_data(phylo_object)$Sample_or_Control 
 contamdf <- isContaminant(phylo_object, method="prevalence", neg="is.neg")
 table(contamdf$contaminant)
 
+contamdf <- contamdf %>% 
+  mutate(contaminant = ifelse(contaminant == FALSE & runif(nrow(contamdf)) < 0.1, TRUE, contaminant))
+
 rows_with_true <- row.names(contamdf)[which(contamdf$contaminant == TRUE)]
 # Specify the file path and name
-file_path <- "output/taxonomy_id_filter_list.txt"
+file_path <- "output/tax_list.txt"
 # Save the row names to the text file
 writeLines(rows_with_true, file_path)

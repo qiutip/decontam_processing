@@ -5,6 +5,7 @@
 echo "Removing Contanimated Sequences"
 file_name="$1"
 read_id_file="$2"
+path_out="$3"
 
 sample_list=$(awk '{ print $1 }' $file_name)
 read1_list=$(awk '{ print $2 }' $file_name)
@@ -30,8 +31,8 @@ for index in "${!samples[@]}"; do
     sample_val="${samples[$index]}" 
     read1_val="${read1[$index]}"
     read2_val="${read2[$index]}"
-    dir_1="decontam/"$sample_val"_1.fastq.update.gz"
-    dir_2="decontam/"$sample_val"_2.fastq.update.gz"
+    dir_1="$path_out/output/decontam/"$sample_val"_1.fastq.gz"
+    dir_2="$path_out/output/decontam/"$sample_val"_2.fastq.gz"
     
     echo "Filtering "$sample_val" Read 1"
     zcat $read1_val |  awk -v id=$read_id_file -v sample_id=$sample_val 'BEGIN {

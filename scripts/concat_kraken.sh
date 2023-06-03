@@ -10,5 +10,5 @@ awk '{
         print sample_id, line;
     }
     close(file_path);
-}' $samples > $file_output
+}' $samples > $file_output"/output/kraken_total.tsv"
 
