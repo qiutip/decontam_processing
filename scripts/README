@@ -1,10 +1,16 @@
 #Execute 
 ## 1. process_kraken_total.sh
         Concatenates all of the kraken.tsv files with associated read_ids
+                Creates output/kraken_samples.txt
+                Creates output/kraken_total.txt
 ## 2. process.sh
         Identifies likely contanimated taxa
+                Creates output/tax_list.txt
         Identifies read_ids associasted with cotanimated taxa
+                Creates output/read_id.filter.txt
         Filters out FASTQ files
+                Creates output/decontam/{sample_name}.R1.fastq.gz
+                Creates output/decontam/{sample_name}.R2.fastq.gz
 
 ./process_kraken_total.sh $test_dir $kraken_dir
 
