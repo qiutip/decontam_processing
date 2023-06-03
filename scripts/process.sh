@@ -10,7 +10,17 @@ mkdir $path_output/output
 mkdir $path_output/output/decontam
 
 echo "Creating Tax_ids to filter"
+
 Rscript ./decontam_processing.R $path_output $path_bracken_combined $path_bracken_meta
+
+line_count=$(cat $path_output"/output/tax_list.txt" | wc -l)
+
+echo "# of Tax IDs to Filter: "$line_count
+
+if [[ $line_count -eq 0 ]]; then
+    echo "EXITING: No taxa to filter"
+    exit 0
+fi
 
 echo "Extracting Read IDs to filter"
 ./extract_reads_kraken.sh $path_output"/output/tax_list.txt" $path_kraken_total $path_output"/output/read_id.filter.txt" 
