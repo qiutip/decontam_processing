@@ -7,9 +7,9 @@ file_name="$1"
 read_id_file="$2"
 path_out="$3"
 
-#echo "file_name "$file_name
-#echo "read_id_file "$read_id_file
-#echo "path_out dir "$path_out
+echo "file_name "$file_name
+echo "read_id_file "$read_id_file
+echo "path_out dir "$path_out
 
 sample_list=$(awk '{ print $1 }' $file_name)
 read1_list=$(awk '{ print $2 }' $file_name)
