@@ -186,14 +186,14 @@ process <- function(ps, threshold_values){
     
     ## Updating Phyloseq Object with Removed Taxa
     print("Removed Contaminant Lowest Taxanomic Unit")
-    update_ps = prune_taxa(rows_with_false <- row.names(result)[which(result$contaminant == FALSE)], ps)
+    ps_filter <- prune_taxa(rows_with_false <- row.names(result)[which(result$contaminant == FALSE)], ps)
     
     print("Processing Abundance Matrices")
     #Re-formating datamatrix with absolute abundance
     
     for (y in complete_ranks){
       
-      df_relative <- ps %>% tax_glom(taxrank = y) %>%
+      df_relative <- ps_filter %>% tax_glom(taxrank = y) %>%
         transform_sample_counts(function(x) {x/sum(x)})%>% psmelt() %>% 
         select(y, Sample, Abundance) %>% spread(Sample, Abundance)
       
@@ -206,7 +206,7 @@ process <- function(ps, threshold_values){
     }
     file_path_all <- paste0("output/relative_abundance.all", 
                             paste0(".thresh-", as.character(threshold_values[x])),".tsv")
-    write.table(ps %>% transform_sample_counts(function(x) {x/sum(x)}) %>% psmelt() %>% arrange(OTU) %>%
+    write.table(ps_filter %>% transform_sample_counts(function(x) {x/sum(x)}) %>% psmelt() %>% arrange(OTU) %>%
                   select(OTU, unlist(complete_ranks), Sample, Abundance) %>%
                   spread(Sample, Abundance), file = file_path_all, 
                 sep = "\t", quote = F, row.names = F, col.names = T)
@@ -249,7 +249,7 @@ process_parallel <- function(ps, threshold_values, workers = 5){
 
         ## Updating Phyloseq Object with Removed Taxa
         print("Removed Contaminant Lowest Taxanomic Unit")
-        update_ps = prune_taxa(rows_with_false <- row.names(result)[which(result$contaminant == FALSE)], ps)
+        ps_filter <- prune_taxa(rows_with_false <- row.names(result)[which(result$contaminant == FALSE)], ps)
 
         print("Processing Abundance Matrices")
         
@@ -257,7 +257,7 @@ process_parallel <- function(ps, threshold_values, workers = 5){
 
         for (y in complete_ranks){
 
-            df_relative <- ps %>% tax_glom(taxrank = y) %>%
+            df_relative <- ps_filter %>% tax_glom(taxrank = y) %>%
             transform_sample_counts(function(x) {x/sum(x)})%>% psmelt() %>% 
             select(all_of(y), Sample, Abundance) %>% spread(Sample, Abundance)
             
@@ -270,7 +270,7 @@ process_parallel <- function(ps, threshold_values, workers = 5){
         }
         file_path_all <- paste0("output/relative_abundance.all", 
                               paste0(".thresh-", as.character(threshold_values[.x])),".tsv")
-        write.table(ps %>% transform_sample_counts(function(x) {x/sum(x)}) %>% psmelt() %>% arrange(OTU) %>%
+        write.table(ps_filter %>% transform_sample_counts(function(x) {x/sum(x)}) %>% psmelt() %>% arrange(OTU) %>%
             select(OTU, unlist(complete_ranks), Sample, Abundance) %>%
             spread(Sample, Abundance), file = file_path_all, 
             sep = "\t", quote = F, row.names = F, col.names = T)
