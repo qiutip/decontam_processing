@@ -5,7 +5,7 @@ Make a meta_table of the samples dictated as "Control" or "True" with column_nam
     Look at input for examples.
 
 ## Step 2.
-1. use Rscript scripts/decontam_process.v3.R path_output path_otu path_meta dtype threshold_interval
+1. use Rscript scripts/decontam_process.v3.R $path_output $path_otu $path_meta $dtype $threshold_interval
     - dtype = "kraken" or "xtree"
         - Will implement metaplhan
     - threshold_interval = interval1,interval2
