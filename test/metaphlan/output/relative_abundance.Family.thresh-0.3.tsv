@@ -1,0 +1,15 @@
+Family	sample_Neg	sample_No.Tube.1	sample_No.Tube.2	sample_Pos
+Bacillaceae	0	0.00123530012353001	0	0.0012381
+Burkholderiales_unclassified	0.0313929	0	0	0
+Cryptococcaceae	0	0.00198120019812002	0	0.0017007
+Enterobacteriaceae	0	0.318732631873263	0	0.2452536
+Enterococcaceae	0	0.141643314164331	0	0.1829252
+Lactobacillaceae	0	0.213925921392592	0	0.181909
+Lawsonellaceae	0	0	0	1.12e-05
+Listeriaceae	0	0.0745913074591307	0	0.1343181
+Malasseziaceae	0	0	0	4e-07
+Micrococcaceae	0	0	0	1.76e-05
+Propionibacteriaceae	0.9686071	0.000283600028360003	1	0.0003226
+Pseudomonadaceae	0	0.128652012865201	0	0.074275
+Saccharomycetaceae	0	0.00562180056218006	0	0.005816
+Staphylococcaceae	0	0.113332911333291	0	0.1722125

@@ -1,0 +1,12 @@
+Order	sample_Neg	sample_No.Tube.1	sample_No.Tube.2	sample_Pos
+Bacillales	0	0.189159518915952	0	0.3077687
+Burkholderiales	0.0313929	0	0	0
+Corynebacteriales	0	0	0	1.12e-05
+Enterobacterales	0	0.318732631873263	0	0.2452536
+Lactobacillales	0	0.355569235556924	0	0.3648342
+Malasseziales	0	0	0	4e-07
+Micrococcales	0	0	0	1.76e-05
+Propionibacteriales	0.9686071	0.000283600028360003	1	0.0003226
+Pseudomonadales	0	0.128652012865201	0	0.074275
+Saccharomycetales	0	0.00562180056218006	0	0.005816
+Tremellales	0	0.00198120019812002	0	0.0017007

@@ -56,73 +56,103 @@ setwd(path_dir)
 dir.create("output")
 
 #### FUNCTIONS ####
+
 process_dataframes <- function(df.otu_path, df.meta_path, dtype){
-  #read in data
-  df.otu <- read.table(file = df.otu_path, sep = '\t', header = TRUE)
-  df.meta <- read.table(file = df.meta_path, sep = '\t', header = TRUE)
-  
-  #tax_ranks
-  ranks = c("Domain", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
-  ranks_complete <- list()
-  
-  if (dtype == "kraken" | dtype == "kraken2" | dtype == "bracken"){
-    kraken_rank = c("D", "K","P","C","O", "F", "G","S")
+    #read in data
+    df.otu <- read.table(file = df.otu_path, sep = '\t', header = TRUE)
+    df.meta <- read.table(file = df.meta_path, sep = '\t', header = TRUE)
     
-    for (x in seq(1,length(ranks))){
-      if (any(grepl(kraken_rank[x], df.otu$taxonomy_lvl)) == TRUE){
-        ranks_complete[x] <- ranks[x]
-      }
-    }
-    ranks_complete <- compact(ranks_complete)
+    #tax_ranks
+    ranks = c("Domain", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain")
+    ranks_complete <- list()
     
-    rownames(df.otu) <- df.otu$name
-    df.otu <- select(df.otu, c(seq(5, ncol(df.otu), by = 2)))
-    df.otu$sample_id <- rownames(df.otu)
+    if (dtype == "kraken" | dtype == "kraken2" | dtype == "bracken"){
+        kraken_rank = c("D", "K","P","C","O", "F", "G","S", "T")
+        
+        for (x in seq(1,length(ranks))){
+            if (any(grepl(kraken_rank[x], df.otu$taxonomy_lvl)) == TRUE){
+                ranks_complete[x] <- ranks[x]
+            }
+            }
+        ranks_complete <- compact(ranks_complete)
+
+        rownames(df.otu) <- df.otu$name
+        df.otu <- select(df.otu, c(seq(5, ncol(df.otu), by = 2)))
+        df.otu$sample_id <- rownames(df.otu)
+
+        df.taxa<- df.otu %>% select(sample_id) %>% rename_with(~unlist(ranks_complete), sample_id)
+        df.taxa<- df.taxa %>% mutate_if(is.character, as.factor)
+    } else if (dtype == "xtree" | dtype =="Xtree") {
+        #process df.otu
+        df.otu$sample_id <- rownames(df.otu)
+
+        xtree_rank = c("d__", "k__","p__","c__","o__", "f__", "g__","s__", "t__")
+        
+        ## Checking taxanomic ranks within otu
+        for (x in seq(1,length(ranks))){
+            if (any(grepl(xtree_rank[x], df.otu$sample_id)) == TRUE){
+                ranks_complete[x] <- ranks[x]
+            }
+            }
+        ranks_complete <- compact(ranks_complete)
+        
+        df.otu$sample_id <- rownames(df.otu)
+        df.otu <- df.otu %>% mutate(sample_id = str_remove_all(sample_id, "d__|k__|p__|c__|o__|f__|g__|s__|t__"))
+        rownames(df.otu) <- df.otu$sample_id
+        
+
+        df.taxa<- df.otu %>% select(sample_id) %>% separate(sample_id, unlist(ranks_complete),";")
+        df.taxa<- df.taxa %>% mutate_if(is.character, as.factor)
+        df.taxa["Unknown", ] <- "Unknown"
+        } else if (dtype == "metaphlan" | dtype == "metaplhan"){
+        #process df.otu
+        
+        rownames(df.otu) <- df.otu$clade_name
+        df.otu$sample_id <- rownames(df.otu)
+        
+        metaphlan_rank = c("d__", "k__","p__","c__","o__", "f__", "g__","s__", "t__")
+
+        ## Checking taxanomic ranks within otu
+        
+        for (x in seq(1,length(ranks))){
+            if (any(grepl(metaphlan_rank[x], df.otu$clade_name)) == TRUE){
+                ranks_complete[x] <- ranks[x]
+            }
+            }
+        df.otu <- df.otu[grepl(metaphlan_rank[length(ranks_complete)],df.otu$clade_name), ]
+        ranks_complete <- compact(ranks_complete)
+        
+        df.otu <- df.otu %>% mutate(sample_id = str_remove_all(sample_id, "d__|k__|p__|c__|o__|f__|g__|s__|t__"))
+        rownames(df.otu) <- df.otu$sample_id
+
+        df.taxa<- df.otu %>% select(sample_id) %>% separate(sample_id, unlist(ranks_complete),"\\|")
+        df.taxa<- df.taxa %>% mutate_if(is.character, as.factor)
+        
+        df.otu <- select(df.otu, c(-clade_name))
+        
+        } else {
+            print("Not the correct dtype, type again")
+            q()
+        }
     
-    df.taxa<- df.otu %>% select(sample_id) %>% rename_with(~unlist(ranks_complete), sample_id)
-    df.taxa<- df.taxa %>% mutate_if(is.character, as.factor)
-  }
-  if (dtype == "xtree" | dtype =="Xtree"){
-    #process df.otu
-    df.otu$sample_id <- rownames(df.otu)
+
+    #process df.meta
+    df.meta<- df.meta %>% column_to_rownames(var = "sample_id")
+
+    #process misc
     
-    xtree_rank = c("d__", "k__","p__","c__","o__", "f__", "g__","s__")
+    df.otu <- select(df.otu, c(-sample_id))
+    otu_mat<- as.matrix(df.otu)
+    tax_mat<- as.matrix(df.taxa)
+
+    phylo_OTU<- otu_table(otu_mat, taxa_are_rows = TRUE)
+    phylo_TAX<- tax_table(tax_mat)
+    phylo_samples<- sample_data(df.meta)
     
-    ## Checking taxanomic ranks within otu
-    for (x in seq(1,length(ranks))){
-      if (any(grepl(xtree_rank[x], df.otu$sample_id)) == TRUE){
-        ranks_complete[x] <- ranks[x]
-      }
-    }
-    ranks_complete <- compact(ranks_complete)
+    ps<- phyloseq(phylo_OTU, phylo_TAX, phylo_samples)
+    sample_data(ps)$is.neg <- sample_data(ps)$Sample_or_Control == "Control"
     
-    df.otu$sample_id <- rownames(df.otu)
-    df.otu <- df.otu %>% mutate(sample_id = str_remove_all(sample_id, "d__|k__|p__|c__|o__|f__|g__|s__"))
-    rownames(df.otu) <- df.otu$sample_id
-    
-    
-    df.taxa<- df.otu %>% select(sample_id) %>% separate(sample_id, unlist(ranks_complete),";")
-    df.taxa<- df.taxa %>% mutate_if(is.character, as.factor)
-    df.taxa["Unknown", ] <- "Unknown"
-  }
-  
-  #process df.meta
-  df.meta<- df.meta %>% column_to_rownames(var = "sample_id")
-  
-  #process misc
-  #df.taxa<- df.taxa %>% select(-sample_id)
-  df.otu <- select(df.otu, c(-sample_id))
-  otu_mat<- as.matrix(df.otu)
-  tax_mat<- as.matrix(df.taxa)
-  
-  phylo_OTU<- otu_table(otu_mat, taxa_are_rows = TRUE)
-  phylo_TAX<- tax_table(tax_mat)
-  phylo_samples<- sample_data(df.meta)
-  
-  ps<- phyloseq(phylo_OTU, phylo_TAX, phylo_samples)
-  sample_data(ps)$is.neg <- sample_data(ps)$Sample_or_Control == "Control"
-  
-  return(ps)
+    return(ps)
 }
 
 contam_space <- function(ps, thresh) {
