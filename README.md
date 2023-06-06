@@ -12,8 +12,8 @@ Make a meta_table of the samples dictated as "Control" or "True" with column_nam
         - input as a tuple, seperator = ","
         - interval1 and interval2 are starting and ending points of seq(interval1,interval2, by = 5)
 
-
-| OUTPUTS |
+## Outputs
+| Files/Figures |
 | --- |
 | generates tsv file with new relative abundances based on filtering out specific taxa across different taxaonomic ranks |
 | generates tsv file with taxa filtered out at specific thresholds |
@@ -21,7 +21,7 @@ Make a meta_table of the samples dictated as "Control" or "True" with column_nam
 | produces a figure of threshold vs contaminated taxa |
 
 
-# EXAMPLE
+## EXAMPLE
     Rscript scripts/decontam_process.v3.R path/to/output_directory path/to/input/xtree/GTDB_.1_.05_c_metagenomics_ra.tsv path/to/input/xtree/df.meta.tsv xtree .1,.5
 
 
