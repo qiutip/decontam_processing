@@ -1,18 +1,17 @@
 # decontam_processing
 
-# Step 1.
+## Step 1.
 Make a meta_table of the samples dictated as "Control" or "True" with column_name = "Sample_or_Control"
     Look at input for examples.
 
-# Step 2.
-use Rscript scripts/decontam_process.v3.R path_output path_otu path_meta dtype threshold_interval
-    * dtype = "kraken" or "xtree"
-        a. Will implement metaplhan
-    * threshold_interval = interval1,interval2
-        a. input as a tuple, seperator = ","
-        b. interval1 and interval2 are starting and ending points of seq(interval1,interval2, by = 5)
+## Step 2.
+1. use Rscript scripts/decontam_process.v3.R path_output path_otu path_meta dtype threshold_interval
+    - dtype = "kraken" or "xtree"
+        - Will implement metaplhan
+    - threshold_interval = interval1,interval2
+        - input as a tuple, seperator = ","
+        - interval1 and interval2 are starting and ending points of seq(interval1,interval2, by = 5)
 
-## OUTPUTS
 
 | OUTPUTS |
 | --- |
@@ -20,10 +19,6 @@ use Rscript scripts/decontam_process.v3.R path_output path_otu path_meta dtype t
 | generates tsv file with taxa filtered out at specific thresholds |
 | generates tsv file of threshold vs contaminated taxa |
 | produces a figure of threshold vs contaminated taxa |
-generates tsv file with new relative abundances based on filtering out specific taxa across different taxaonomic ranks
-generates tsv file with taxa filtered out at specific thresholds
-generates tsv file of threshold vs contaminated taxa
-produces a figure of threshold vs contaminated taxa
 
 
 # EXAMPLE
