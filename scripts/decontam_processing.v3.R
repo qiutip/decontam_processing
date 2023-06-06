@@ -1,11 +1,16 @@
 library(stringr)
+suppressPackageStartupMessages(library(furrr))
 library(phyloseq)
+library(tictoc)
 library(purrr)
 library(ggplot2)
 library(decontam)
 library(tibble)
 library(tidyr)
-library(dplyr)
+suppressPackageStartupMessages(library(dplyr))
+library(optparse)
+suppressPackageStartupMessages(library(argparser))
+options(warn = -1)
 
 args <- commandArgs(trailingOnly = TRUE)
 
@@ -16,13 +21,38 @@ parseTupleArgument <- function(arg) {
   return(values)
 }
 
-path_output <- args[1]
+path_dir <- args[1]
 path_otu <- args[2]
 path_meta <- args[3]
 dtype <- args[4]
-threshold_interval <- parseTupleArgument(args[5])
+thresh_interval <- parseTupleArgument(args[5])
+workers <- args[6]
 
-setwd(path_output)
+
+#options <- list(
+#    make_option(c("-d", "--path_dir"), dest = "path_dir", default = getwd(),help = "Output Directory", type = "character"),
+#    make_option(c("-o", "--path_otu"), dest = "path_otu", default = NULL,help = "Path to OTU table", type = "character"),
+#    make_option(c("-m", "--path_meta"), dest = "path_meta", default = NULL, help = "Path to Meta table", type = "character"),
+#    make_option(c("-t", "--dtype"), dest = "path_otu", default = NULL,help = "OTU file type (options: kraken, xtree)", type = "character"),
+#    make_option(c("-i", "--thresh_interval"), dest = "thresh_interval", default = .1,.5,help = "Threshold Interval, seperated by ,", type = "character"),
+#    make_option(c("-w", "--workers"), dest = "workers", default = 5, help = "Number of Cores", type = "integer")
+#)
+
+#parser <- add_option(parser, c("-h", "--help"), action = "help", type = "character",
+#                    help = "Refer to https://github.com/qiutip/decontam_processing")
+
+# Parse the command-line arguments
+#opt <- parse_args(OptionParser(option_list = options))
+
+#path_dir <- opt$path_dir
+#path_otu <- opt$path_otu
+#path_meta <- opt$path_meta
+#dtype <- opt$dtype
+#thresh_interval <- parseTupleArgument(opt$thresh_interval)
+#workers <- opt$workers
+
+
+setwd(path_dir)
 dir.create("output")
 
 #### FUNCTIONS ####
@@ -161,7 +191,75 @@ process <- function(ps, threshold_values){
   ggsave("output/thresh_vs_count.png")
 }
 
+process_parallel <- function(ps, threshold_values, workers = 5){
+    
+    plan("multisession", workers=workers)
+
+    complete_ranks <- colnames(tax_table(ps))
+    print(complete_ranks)
+    
+    results <- list() 
+    contam_count <- list()
+    contam_count <- future_map(1:length(threshold_values), ~ {
+        
+        print(paste0("THRESHOLD VALUE = ", threshold_values[.x]))
+        
+        ## Calling prevalence function
+        result <- contam_space(ps, threshold_values[.x])
+        results[[.x]] <- result 
+
+        ## Counting number of contanimated taxa
+        contam_count[[.x]] <<- sum(table(result$contaminant)[2])
+
+        ## Creating TSV file with Filtered out Taxa based on thresholds
+        rows_with_true <- row.names(result)[which(result$contaminant == TRUE)]
+        df <- data.frame("taxonomy" = rows_with_true)
+        file_path <- paste0("output/taxonomy_id_filter_list", paste0(".thresh-", as.character(threshold_values[.x])),".tsv")
+        write.table(df, file = file_path, sep = "\t", row.names = FALSE, col.names = TRUE)
+
+        ## Updating Phyloseq Object with Removed Taxa
+        print("Removed Contaminant Lowest Taxanomic Unit")
+        update_ps = prune_taxa(rows_with_false <- row.names(result)[which(result$contaminant == FALSE)], ps)
+
+        print("Processing Abundance Matrices")
+        
+        #Re-formating datamatrix with absolute abundance
+
+        for (y in complete_ranks){
+
+            df_relative <- ps %>% tax_glom(taxrank = y) %>%
+            transform_sample_counts(function(x) {x/sum(x)})%>% psmelt() %>% 
+            select(all_of(y), Sample, Abundance) %>% spread(Sample, Abundance)
+            
+            #updates threshold/taxa_rank
+            file_path_r <- paste0("output/", paste0("relative_abundance.", y), 
+                paste0(".thresh-", as.character(threshold_values[.x])),".tsv")
+            
+            ##writes dataframes
+            write.table(df_relative, file = file_path_r, sep = "\t", quote = F, row.names = F, col.names = T)
+        }
+        file_path_all <- paste0("output/relative_abundance.all", 
+                              paste0(".thresh-", as.character(threshold_values[.x])),".tsv")
+        write.table(ps %>% transform_sample_counts(function(x) {x/sum(x)}) %>% psmelt() %>% arrange(OTU) %>%
+            select(OTU, unlist(complete_ranks), Sample, Abundance) %>%
+            spread(Sample, Abundance), file = file_path_all, 
+            sep = "\t", quote = F, row.names = F, col.names = T)
+        
+        contam_count[[.x]]
+    })
+    plan("sequential")
+    
+    print("Contanimated Count vs Threshold")
+    contam_count <- lapply(contam_count, function(x) replace(x, is.na(x), 0))
+    df_count <- data.frame(thresh = unlist(threshold_values), count_contaminants = unlist(contam_count))
+    write.table(df_count, 
+                file = "output/thresh_vs_count.tsv", sep = "\t", quote = F, row.names = F, col.names = T)
+    ggplot(data=df_count, aes(x=threshold_values, y=count_contaminants)) + geom_point()
+    ggsave("output/thresh_vs_count.png")
+    }
+
+
 ps <- process_dataframes(path_otu, path_meta, dtype)
-threshold_values<- seq(from = threshold_interval[1], to = threshold_interval[2], length.out = 5)
-process(ps, threshold_values)
+threshold_values<- seq(from = thresh_interval[1], to = thresh_interval[2], length.out = 5)
+process_parallel(ps, threshold_values, workers)
 
