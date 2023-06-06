@@ -21,6 +21,8 @@ produces a figure of threshold vs contaminated taxa
 
 
 ########## RETIRE ###########
+
+
 filters out likely contanimated sequences using decontam and taxonomy data (e.g. Kraken2)
 
 Step 1.
