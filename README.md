@@ -1,11 +1,12 @@
-# decontam_processing
+# Decontam Processing
+## Filters out contanimants based on "prevalance method" from Decontam R package
 
 ## Step 1.
 Make a meta_table of the samples dictated as "Control" or "True" with column_name = "Sample_or_Control"
     Look at input for examples.
 
 ## Step 2.
-1. use Rscript scripts/decontam_process.v3.R $path_output $path_otu $path_meta $dtype $threshold_interval $workers
+1. use Rscript scripts/decontam_process.R $path_output $path_otu $path_meta $dtype $threshold_interval $workers
     - dtype = "kraken" or "xtree"
         - Will implement metaplhan
     - threshold_interval = interval1,interval2
@@ -22,8 +23,8 @@ Make a meta_table of the samples dictated as "Control" or "True" with column_nam
 
 
 ## EXAMPLE
-    Rscript scripts/decontam_process.v3.R path/to/output_directory path/to/input/xtree/GTDB_.1_.05_c_metagenomics_ra.tsv path/to/input/xtree/df.meta.tsv xtree .1,.5 5
+    Rscript scripts/decontam_process.R path/to/output_directory path/to/input/xtree/GTDB_.1_.05_c_metagenomics_ra.tsv path/to/input/xtree/df.meta.tsv xtree .1,.5 5
     
     
-    Rscript scripts/decontam_processing.v3.R /athena/masonlab/scratch/users/jaq4005/decontam_processing input/xtree/GTDB_.1_.05_c_metagenomics_ra.tsv input/xtree/df.meta.tsv xtree .1,.5 5
+    Rscript scripts/decontam_process.R /athena/masonlab/scratch/users/jaq4005/decontam_processing input/xtree/GTDB_.1_.05_c_metagenomics_ra.tsv input/xtree/df.meta.tsv xtree .1,.5 5
 
