@@ -62,8 +62,8 @@ process_dataframes <- function(df.otu_path, df.meta_path, dtype){
     df.otu <- read.table(file = df.otu_path, sep = '\t', header = TRUE)
     df.meta <- read.table(file = df.meta_path, sep = '\t', header = TRUE)
     
-    saveRDS(df.otu,"df_otu_original.rds")
-    saveRDS(df.meta,"df_meta_original_.rds")
+    saveRDS(df.otu,"output/df_otu_original.rds")
+    saveRDS(df.meta,"output/df_meta_original_.rds")
 
     #tax_ranks
     ranks = c("Domain", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain")
@@ -136,8 +136,11 @@ process_dataframes <- function(df.otu_path, df.meta_path, dtype){
         df.otu <- select(df.otu, c(-clade_name))
         
         } else {
-            print("Not the correct dtype, type again")
-            q()
+            rownames(df.otu) <- df.otu$name
+            df.otu$sample_id <- rownames(df.otu)
+
+            df.taxa<- df.otu %>% select(sample_id) %>% rename_with(~dtype, sample_id)
+            df.taxa<- df.taxa %>% mutate_if(is.character, as.factor)
         }
     
 
@@ -151,9 +154,9 @@ process_dataframes <- function(df.otu_path, df.meta_path, dtype){
     tax_mat<- as.matrix(df.taxa)
     
     
-    saveRDS(otu_mat,"otu_mat_process.rds")
-    saveRDS(tax_mat,"tax_mat_process.rds")
-    saveRDS(df.meta,"df_meta_process.rds")
+    saveRDS(otu_mat,"output/otu_mat_process.rds")
+    saveRDS(tax_mat,"output/tax_mat_process.rds")
+    saveRDS(df.meta,"output/df_meta_process.rds")
 
     phylo_OTU<- otu_table(otu_mat, taxa_are_rows = TRUE)
     phylo_TAX<- tax_table(tax_mat)
@@ -162,7 +165,7 @@ process_dataframes <- function(df.otu_path, df.meta_path, dtype){
     ps<- phyloseq(phylo_OTU, phylo_TAX, phylo_samples)
     sample_data(ps)$is.neg <- sample_data(ps)$Sample_or_Control == "Control"
     
-    saveRDS(ps,"phyloseq_object.rds")
+    saveRDS(ps,"output/phyloseq_object.rds")
     return(ps)
 }
 

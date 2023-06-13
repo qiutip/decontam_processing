@@ -7,8 +7,7 @@ Make a meta_table of the samples dictated as "Control" or "True" with column_nam
 
 ## Step 2.
 1. use Rscript scripts/decontam_process.R $path_output $path_otu $path_meta $dtype $threshold_interval $workers
-    - dtype = "kraken" or "xtree"
-        - Will implement metaplhan
+    - dtype = "kraken", "xtree", "metaphlan", or taxa rank based on general abundance dataframe
     - threshold_interval = interval1,interval2
         - input as a tuple, seperator = ","
         - interval1 and interval2 are starting and ending points of seq(interval1,interval2, by = 5)
