@@ -62,6 +62,9 @@ process_dataframes <- function(df.otu_path, df.meta_path, dtype){
     df.otu <- read.table(file = df.otu_path, sep = '\t', header = TRUE)
     df.meta <- read.table(file = df.meta_path, sep = '\t', header = TRUE)
     
+    saveRDS(df.otu,"df_otu_original.rds")
+    saveRDS(df.meta,"df_meta_original_.rds")
+
     #tax_ranks
     ranks = c("Domain", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Strain")
     ranks_complete <- list()
@@ -146,6 +149,11 @@ process_dataframes <- function(df.otu_path, df.meta_path, dtype){
     df.otu <- select(df.otu, c(-sample_id))
     otu_mat<- as.matrix(df.otu)
     tax_mat<- as.matrix(df.taxa)
+    
+    
+    saveRDS(otu_mat,"otu_mat_process.rds")
+    saveRDS(tax_mat,"tax_mat_process.rds")
+    saveRDS(df.meta,"df_meta_process.rds")
 
     phylo_OTU<- otu_table(otu_mat, taxa_are_rows = TRUE)
     phylo_TAX<- tax_table(tax_mat)
@@ -154,6 +162,7 @@ process_dataframes <- function(df.otu_path, df.meta_path, dtype){
     ps<- phyloseq(phylo_OTU, phylo_TAX, phylo_samples)
     sample_data(ps)$is.neg <- sample_data(ps)$Sample_or_Control == "Control"
     
+    saveRDS(ps,"phyloseq_object.rds")
     return(ps)
 }
 
