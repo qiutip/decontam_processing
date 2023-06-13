@@ -79,7 +79,9 @@ process_dataframes <- function(df.otu_path, df.meta_path, dtype){
         rownames(df.otu) <- df.otu$name
         df.otu <- select(df.otu, c(seq(5, ncol(df.otu), by = 2)))
         df.otu$sample_id <- rownames(df.otu)
-
+        new_names <- sub("_frac", "", names(df.otu))
+        names(df.otu) <- new_names
+        
         df.taxa<- df.otu %>% select(sample_id) %>% rename_with(~unlist(ranks_complete), sample_id)
         df.taxa<- df.taxa %>% mutate_if(is.character, as.factor)
     } else if (dtype == "xtree" | dtype =="Xtree") {
